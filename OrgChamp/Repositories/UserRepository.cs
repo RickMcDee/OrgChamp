@@ -57,9 +57,21 @@ namespace OrgChamp.Repositories
             using var context = dbContextFactory.CreateDbContext();
             var user = await context.Users
                                                 .Include(i => i.UserDetails)
+                                                .Include(i => i.Teams)
+                                                    .ThenInclude(i => i.Team)
                                                 .SingleAsync(u => u.UserId == userId);
 
             var result = mapper.Map<UserViewModel>(user);
+
+            foreach (var team in user.Teams)
+            {
+                result.Teams.Add(new TeamViewModel
+                {
+                    TeamId = team.TeamId,
+                    TeamName = team.Team.TeamName,
+                    TeamDescription = team.Team.TeamDescription,
+                });
+            }
 
             return result;
         }

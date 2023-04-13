@@ -1,0 +1,39 @@
+﻿@inject OrganizationRepository OrganizationRepository
+@inject UserService UserService
+
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Team name"
+                      @bind-Value="model.TeamName"
+                            Immediate />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    public MudDialogInstance MudDialog { get; set; } = default!;
+
+    private TeamViewModel model = new TeamViewModel();
+
+    private async void Submit()
+    {
+        try
+        {
+            await OrganizationRepository.SaveTeam(model, UserService.User);
+            Snackbar.Add("Team created", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(model));
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

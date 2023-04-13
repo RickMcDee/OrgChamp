@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace OrgChamp.Pages
+namespace OrgChamp.Pages.Auth
 {
     public class LogoutModel : PageModel
     {

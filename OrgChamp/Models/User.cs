@@ -25,5 +25,6 @@ namespace OrgChamp.Models
         public required DateTime LastSeen { get; set; }
 
         public UserDetails? UserDetails { get; set; }
+        public List<TeamMember> Teams { get; set; } = new();
     }
 }

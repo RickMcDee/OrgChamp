@@ -13,6 +13,7 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+builder.Services.AddTransient<OrganizationRepository>();
 builder.Services.AddTransient<UserRepository>();
 builder.Services.AddScoped<UserService>();
 

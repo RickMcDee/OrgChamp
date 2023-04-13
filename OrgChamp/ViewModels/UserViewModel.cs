@@ -6,7 +6,7 @@ namespace OrgChamp.ViewModels
     {
         public UserViewModel()
         {
-            
+
         }
 
         public UserViewModel(UserViewModel original)
@@ -44,6 +44,8 @@ namespace OrgChamp.ViewModels
 
         [ValidateComplexType]
         public AddressViewModel Address { get; set; } = new();
+
+        public List<TeamViewModel> Teams { get; set; } = new();
 
         public override bool Equals(object? obj)
         {

@@ -2,7 +2,7 @@ using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace OrgChamp.Pages
+namespace OrgChamp.Pages.Auth
 {
     public class LoginModel : PageModel
     {

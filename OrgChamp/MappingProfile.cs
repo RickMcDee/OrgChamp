@@ -7,11 +7,13 @@ namespace OrgChamp
         public MappingProfile()
         {
             // DTO to ViewModel
+            CreateMap<Team, TeamViewModel>();
             CreateMap<User, UserViewModel>()
                     .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UserId))
                     .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.UserDetails == null ? string.Empty : src.UserDetails.Email))
                     .ForMember(dest => dest.Homepage, opt => opt.MapFrom(src => src.UserDetails == null ? string.Empty : src.UserDetails.Homepage))
-                    .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.UserDetails));
+                    .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.UserDetails))
+                    .ForMember(dest => dest.Teams, opt => opt.Ignore());
             CreateMap<UserDetails, AddressViewModel>();
 
             // ViewModel to DTO
