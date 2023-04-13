@@ -1,0 +1,115 @@
+﻿@page "/profile"
+
+@attribute [Authorize]
+
+@inject UserRepository UserRepository
+@inject UserService UserService
+
+@inject ISnackbar Snackbar
+
+<EditForm Model="@model" @ref="form">
+    <ObjectGraphDataAnnotationsValidator  />
+    <MudGrid Justify="Justify.Center" Class="mt-2">
+        <MudItem xs="7">
+            <MudCard Class="pa-4">
+                <MudTextField Label="Username"
+                              @bind-Value="model.UserName"
+                              For="@(() => model.UserName)"
+                                Disabled
+                                Immediate />
+                <MudElement Class="d-flex flex-row">
+                    <MudTextField Label="First name"
+                                  @bind-Value="model.FirstName"
+                                  For="@(() => model.FirstName)"
+                                    Clearable
+                                    Immediate />
+                    <MudTextField Label="Last name"
+                                  @bind-Value="model.LastName"
+                                  For="@(() => model.LastName)"
+                                  Class="ml-3"
+                                    Clearable
+                                    Immediate />
+                </MudElement>
+                <MudTextField Label="Email address"
+                              @bind-Value="model.Email"
+                              For="@(() => model.Email)"
+                                Clearable
+                                Immediate />
+                <MudTextField Label="Homepage"
+                              @bind-Value="model.Homepage"
+                              For="@(() => model.Homepage)"
+                                Clearable
+                                Immediate />
+                <MudElement Class="d-flex flex-row mt-4">
+                    <MudTextField Label="Street name"
+                                  @bind-Value="model.Address.Street"
+                                  For="@(() => model.Address.Street)"
+                                    Clearable
+                                    Immediate />
+                    <MudTextField Label="House number"
+                                  @bind-Value="model.Address.Housenumber"
+                                  For="@(() => model.Address.Housenumber)"
+                                  Class="ml-3"
+                                    Clearable
+                                    Immediate />
+                </MudElement>
+                <MudElement Class="d-flex flex-row">
+                    <MudTextField Label="Zip code"
+                                  @bind-Value="model.Address.Zipcode"
+                                  For="@(() => model.Address.Zipcode)"
+                                    Clearable
+                                    Immediate />
+                    <MudTextField Label="City"
+                                  @bind-Value="model.Address.City"
+                                  For="@(() => model.Address.City)"
+                                  Class="ml-3"
+                                    Clearable
+                                    Immediate />
+                </MudElement>
+                <MudTextField Label="Country"
+                              @bind-Value="model.Address.Country"
+                              For="@(() => model.Address.Country)"
+                                Clearable
+                                Immediate />
+                <MudCardActions>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" Disabled="savebuttonDisabled">Save</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+
+@code {
+    private EditForm? form = null!;
+    private UserViewModel model = new UserViewModel();
+    private UserViewModel originalModel = new UserViewModel();
+
+    private bool savebuttonDisabled
+    {
+        get
+        {
+            return model.Equals(originalModel) || !(form!.EditContext!.Validate());
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        model = await UserRepository.GetUserById(UserService.UserId);
+        originalModel = new UserViewModel(model);
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task SaveUser(EditContext context)
+    {
+        try
+        {
+            await UserRepository.SaveUser(model);
+            Snackbar.Add("Saved", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+}

@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33103.184
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrgChamp", "OrgChamp\OrgChamp.csproj", "{7BA88CB9-A37A-4748-96E2-6E65514CB51F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7BA88CB9-A37A-4748-96E2-6E65514CB51F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BA88CB9-A37A-4748-96E2-6E65514CB51F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BA88CB9-A37A-4748-96E2-6E65514CB51F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BA88CB9-A37A-4748-96E2-6E65514CB51F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8601A066-8CD0-41FC-9572-94BC1443347A}
+	EndGlobalSection
+EndGlobal

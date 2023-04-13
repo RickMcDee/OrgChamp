@@ -1,0 +1,37 @@
+﻿@page "/"
+
+@inject AuthenticationStateProvider AuthState
+@inject UserRepository UserRepository
+@inject UserService UserService
+
+<MudContainer Class="d-flex justify-center">
+    <MudElement Class="d-flex flex-column mt-10 gap-1">
+        @if (user?.Identity?.IsAuthenticated ?? false)
+        {
+            <MudText Typo="Typo.body1">Welcome, @user.Identity.Name!</MudText>
+        }
+        else
+        {
+            <MudText Typo="Typo.body1">Please Login to use OrgChamp</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="login?redirectUri=/">Login</MudButton>
+        }
+    </MudElement>
+</MudContainer>
+
+@code {
+    private System.Security.Claims.ClaimsPrincipal? user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthState.GetAuthenticationStateAsync();
+        user = state.User;
+
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            var userId = await UserRepository.LoginUser(user);
+            UserService.SetUserId(userId);
+        }
+
+        await base.OnInitializedAsync();
+    }
+}
