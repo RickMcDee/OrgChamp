@@ -72,7 +72,7 @@
                                 Clearable
                                 Immediate />
                 <MudCardActions>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" Disabled="savebuttonDisabled">Save</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" Disabled="savebuttonDisabled" OnClick="SaveUser">Save</MudButton>
                 </MudCardActions>
             </MudCard>
         </MudItem>
@@ -100,7 +100,7 @@
         await base.OnInitializedAsync();
     }
 
-    private async Task SaveUser(EditContext context)
+    private async Task SaveUser()
     {
         try
         {
