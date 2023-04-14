@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using OrgChamp.Models;
 
 namespace OrgChamp.Repositories
 {
@@ -57,9 +58,9 @@ namespace OrgChamp.Repositories
             return entity.TeamId;
         }
 
-        // This is synchronous on purpose -> TeamManagement.razor cant handle async in Razor code
         internal IEnumerable<TeamMemberViewModel> GetTeamMember(Guid teamId)
         {
+            // This is synchronous on purpose -> TeamManagement.razor cant handle async in Razor code
             using var context = dbContextFactory.CreateDbContext();
             var teamMember = context.TeamMembers
                 .Include(i => i.User)
@@ -74,12 +75,32 @@ namespace OrgChamp.Repositories
             using var context = await dbContextFactory.CreateDbContextAsync();
             var teamMember = await context.TeamMembers.FirstAsync(i => i.TeamId == teamId && i.UserId == userId);
 
-            if(teamMember.Role == TeamMemberRole.Owner)
+            if (teamMember.Role == TeamMemberRole.Owner)
             {
                 throw new InvalidOperationException("Cannot remove owner from team. Team has to be deleted");
             }
 
             context.TeamMembers.Remove(teamMember);
+            await context.SaveChangesAsync();
+        }
+
+        internal async Task AddUserToTeam(Guid teamId, Guid userId, TeamMemberRole role = TeamMemberRole.Guest)
+        {
+            using var context = await dbContextFactory.CreateDbContextAsync();
+            if (await context.TeamMembers.AnyAsync(i => i.TeamId == teamId && i.UserId == userId))
+            {
+                throw new InvalidOperationException("User is already member of this team");
+            }
+
+            var user = await context.Users.FindAsync(userId);
+            await context.TeamMembers.AddAsync(new TeamMember
+            {
+                TeamMemberId = Guid.NewGuid(),
+                TeamMemberName = user!.UserName,
+                TeamId = teamId,
+                Role = role,
+                UserId = user.UserId,
+            });
             await context.SaveChangesAsync();
         }
 

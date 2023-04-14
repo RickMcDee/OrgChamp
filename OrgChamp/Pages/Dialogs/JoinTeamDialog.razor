@@ -1,0 +1,50 @@
+﻿@inject OrganizationRepository OrganizationRepository
+@inject UserService UserService
+
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudSelect T="TeamViewModel" Label="Teams" @bind-Value="selectedTeam">
+            @foreach (var team in existingTeams)
+            {
+                <MudSelectItem Value="@team"> @team.TeamName </MudSelectItem>
+            }
+        </MudSelect>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    public MudDialogInstance MudDialog { get; set; } = default!;
+
+    private IEnumerable<TeamViewModel> existingTeams = Enumerable.Empty<TeamViewModel>();
+    private TeamViewModel selectedTeam = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        existingTeams = await OrganizationRepository.GetTeams();
+
+        await base.OnInitializedAsync();
+    }
+
+    private async void Submit()
+    {
+        try
+        {
+            await OrganizationRepository.AddUserToTeam(selectedTeam.TeamId, UserService.UserId);
+            Snackbar.Add($"You joined the team {selectedTeam.TeamName}", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}
