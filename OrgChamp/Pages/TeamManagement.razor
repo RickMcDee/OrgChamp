@@ -2,6 +2,7 @@
 
 @attribute [Authorize]
 
+@inject OrganizationRepository OrganizationRepository
 @inject UserService UserService
 
 @inject IDialogService DialogService
@@ -18,12 +19,60 @@
     }
     else
     {
-        <MudElement Class="d-flex flex-column mt-10 gap-1">
+        <MudElement Class="d-flex flex-column flex-wrap flex-grow-1 align-center mt-10 gap-1">
             <MudText Typo="Typo.body1">You are part of the following teams:</MudText>
-            <MudList>
+            <MudList Style="width: 80%;">
                 @foreach (var team in UserService.User.Teams)
                 {
-                    <MudListItem Text="@team.TeamName" />
+                    <MudListItem>
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderAvatar>
+                                    <MudAvatar Color="Color.Secondary">TBD</MudAvatar>
+                                </CardHeaderAvatar>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.body1">@team.TeamName</MudText>
+                                    <MudText Typo="Typo.body2">@team.TeamDescription?.Shorten(40)</MudText>
+                                </CardHeaderContent>
+                                <CardHeaderActions>
+                                    @if (expandedCards[UserService.User.Teams.IndexOf(team)])
+                                    {
+                                        <MudIconButton Icon="@Icons.Material.Filled.ExpandLess" Color="Color.Default" OnClick="@(() => ToggleExpandedState(UserService.User.Teams.IndexOf(team)))" />
+                                    }
+                                    else
+                                    {
+                                        <MudIconButton Icon="@Icons.Material.Filled.ExpandMore" Color="Color.Default" OnClick="@(() => ToggleExpandedState(UserService.User.Teams.IndexOf(team)))" />
+                                    }
+                                </CardHeaderActions>
+                            </MudCardHeader>
+                            @if (expandedCards[UserService.User.Teams.IndexOf(team)])
+                            {
+                                <MudCardContent>
+                                    <MudText Typo="Typo.body2">Team description: </MudText>
+                                    <MudText Typo="Typo.body2"> @(team.TeamDescription ?? "No description") </MudText>
+
+                                    <MudText Typo="Typo.body2" Class="mt-4">Team members: </MudText>
+                                    <MudList Dense DisablePadding>
+                                    @foreach (var member in OrganizationRepository.GetTeamMember(team.TeamId))
+                                        {
+                                            <MudListItem>
+                                                <ChildContent>
+                                                    <MudElement Class="d-flex flex-row" Style="margin-bottom: -10px; margin-top: -5px;">
+                                                        <MudText Typo="Typo.body2" Class="d-flex flex-wrap-1 align-center mr-2">@member.Name </MudText>
+                                                        <MudChip Variant="Variant.Outlined" Color="@GetChipColor(member.Role)" Size="Size.Small" Disabled>@member.Role </MudChip>
+                                                </MudElement>
+                                            </ChildContent>
+                                        </MudListItem>
+                                        }
+                                    </MudList>
+
+                                </MudCardContent>
+                                <MudCardActions>
+                                    <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@(() => LeaveTeam(team))">Leave Team</MudButton>
+                                </MudCardActions>
+                            }
+                        </MudCard>
+                    </MudListItem>
                 }
             </MudList>
         </MudElement>
@@ -31,10 +80,28 @@
 </MudContainer>
 
 @code {
+    private bool[] expandedCards = default!;
+
+    protected override void OnInitialized()
+    {
+        CreateExpandedCardsArray();
+
+        base.OnInitialized();
+    }
+
+    private void CreateExpandedCardsArray()
+    {
+        expandedCards = new bool[UserService.User.Teams.Count];
+        for (int i = 0; i < expandedCards.Length; i++)
+        {
+            expandedCards[i] = false;
+        }
+    }
 
     private async Task ReloadUsersTeams()
     {
         await UserService.ReloadUserDetails();
+        CreateExpandedCardsArray();
         StateHasChanged();
     }
 
@@ -49,5 +116,32 @@
             await ReloadUsersTeams();
             Snackbar.Add("Team created", Severity.Success);
         }
+    }
+
+    private async Task LeaveTeam(TeamViewModel team)
+    {
+        try
+        {
+            await OrganizationRepository.RemoveUserFromTeam(team.TeamId, UserService.UserId);
+            Snackbar.Add($"You left the team {team.TeamName}", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private Color GetChipColor(TeamMemberRole role) => role switch
+    {
+        TeamMemberRole.Owner => Color.Error,
+        TeamMemberRole.Administrator => Color.Error,
+        TeamMemberRole.Member => Color.Success,
+        TeamMemberRole.Guest => Color.Dark,
+        _ => Color.Dark
+    };
+
+    private void ToggleExpandedState(int index)
+    {
+        expandedCards[index] = !expandedCards[index];
     }
 }

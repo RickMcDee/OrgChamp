@@ -70,6 +70,7 @@ namespace OrgChamp.Repositories
                     TeamId = team.TeamId,
                     TeamName = team.Team.TeamName,
                     TeamDescription = team.Team.TeamDescription,
+
                 });
             }
 

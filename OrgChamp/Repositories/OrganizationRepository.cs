@@ -20,7 +20,7 @@ namespace OrgChamp.Repositories
         {
             using var context = dbContextFactory.CreateDbContext();
             var teams = await context.Teams.Where(i => i.IsActive).ToListAsync();
-            var result = mapper.Map<List<Team>, IEnumerable<TeamViewModel>>(teams);
+            var result = mapper.Map<IEnumerable<TeamViewModel>>(teams);
 
             return result;
         }
@@ -55,6 +55,32 @@ namespace OrgChamp.Repositories
             await context.SaveChangesAsync();
 
             return entity.TeamId;
+        }
+
+        // This is synchronous on purpose -> TeamManagement.razor cant handle async in Razor code
+        internal IEnumerable<TeamMemberViewModel> GetTeamMember(Guid teamId)
+        {
+            using var context = dbContextFactory.CreateDbContext();
+            var teamMember = context.TeamMembers
+                .Include(i => i.User)
+                .Where(i => i.TeamId == teamId);
+            var result = mapper.Map<IEnumerable<TeamMemberViewModel>>(teamMember);
+
+            return result;
+        }
+
+        internal async Task RemoveUserFromTeam(Guid teamId, Guid userId)
+        {
+            using var context = await dbContextFactory.CreateDbContextAsync();
+            var teamMember = await context.TeamMembers.FirstAsync(i => i.TeamId == teamId && i.UserId == userId);
+
+            if(teamMember.Role == TeamMemberRole.Owner)
+            {
+                throw new InvalidOperationException("Cannot remove owner from team. Team has to be deleted");
+            }
+
+            context.TeamMembers.Remove(teamMember);
+            await context.SaveChangesAsync();
         }
 
         #endregion

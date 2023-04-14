@@ -1,5 +1,4 @@
-﻿using OrgChamp.Enums;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace OrgChamp.Models
 {
