@@ -120,14 +120,18 @@
 
     private async Task LeaveTeam(TeamViewModel team)
     {
-        try
+        var result = await DialogService.ShowMessageBox($"You are leaving {team.TeamName}", "All your planning related to this team will be deleted.", yesText: "Leave the team", cancelText: "Cancel");
+        if (result.HasValue && result.HasValue)
         {
-            await OrganizationRepository.RemoveUserFromTeam(team.TeamId, UserService.UserId);
-            Snackbar.Add($"You left the team {team.TeamName}", Severity.Success);
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add(ex.Message, Severity.Error);
+            try
+            {
+                await OrganizationRepository.RemoveUserFromTeam(team.TeamId, UserService.UserId);
+                Snackbar.Add($"You left the team {team.TeamName}", Severity.Success);
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add(ex.Message, Severity.Error);
+            }
         }
     }
 
